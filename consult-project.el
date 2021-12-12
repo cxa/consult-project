@@ -91,7 +91,7 @@
 (defvar consult-project--source-buffer
   `(
     :name     "Project buffer"
-    :narrow   ?p
+    :narrow   ?b
     :category buffer
     :face     consult-buffer
     :history  buffer-name-history
