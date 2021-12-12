@@ -74,7 +74,7 @@
   "Create a view for project in SELECTED-DIR."
   (find-file (consult--read
               (consult-project--choose-file (expand-file-name selected-dir))
-              :prompt "Switch file: "
+              :prompt "Find project file: "
               :sort t
               :require-match t
               :category 'file
@@ -88,13 +88,9 @@
          (dirs (delete-dups (mapcar (-compose #'abbreviate-file-name  #'project-root) projs))))
     (-take consult-project-recentf-max-projects dirs)))
 
-(defun consult-project--current-project-name ()
-  (when-let (pc (project-current))
-    (consult--project-name (project-root pc))))
-
 (defvar consult-project--source-buffer
   `(
-    :name     "Project Buffer"
+    :name     "Project buffer"
     :narrow   ?p
     :category buffer
     :face     consult-buffer
@@ -113,7 +109,7 @@
 
 (defvar consult-project--source-file
   `(
-    :name      "Project File"
+    :name      "Project file"
     :narrow    ?f
     :category  project-file
     :face      consult-file
