@@ -1,6 +1,6 @@
 # consult-project
 
-Consult integration for porject.
+[Consult](https://github.com/minad/consult) integration for porject.
 
 ## Usage
 
