@@ -63,17 +63,19 @@
 
 (defvar consult-project--history nil)
 
-(defun consult-project--choose-file (proj-root-dir)
-  "File list for PROJ-ROOT-DIR."
-  (let* ((inv-root (propertize proj-root-dir 'invisible t))
-         (files (mapcar (lambda (f) (string-remove-prefix proj-root-dir f))
-                        (project-files (project--find-in-directory proj-root-dir)))))
-    (mapcar (lambda (f) (concat inv-root f)) files)))
+(defun consult-project--list-files (root &optional files)
+  (unless files
+    (setq files (project-files (project--find-in-directory root))))
+  (setq root (expand-file-name root))
+  (let ((invisible-root (propertize root 'invisible t)))
+    (mapcar
+     (lambda (f) (concat invisible-root (string-remove-prefix root f)))
+     files)))
 
 (defun consult-project--file (selected-dir)
   "Create a view for project in SELECTED-DIR."
   (find-file (consult--read
-              (consult-project--choose-file (expand-file-name selected-dir))
+              (consult-project--list-files selected-dir)
               :prompt "Find project file: "
               :sort t
               :require-match t
@@ -100,28 +102,28 @@
     :items
     ,(lambda ()
        (when-let (root-dir (expand-file-name (project-root (project-current))))
-         (mapcar #'buffer-name
-                 (seq-filter (lambda (x)
-                               (when-let (file (buffer-file-name x))
-                                 (string-prefix-p root-dir file)))
-                             (consult--buffer-query :sort 'visibility)))))))
-
+         (mapcar
+          #'buffer-name
+          (seq-filter (lambda (x)
+                        (when-let (file (buffer-file-name x))
+                          (string-prefix-p root-dir file)))
+                      (consult--buffer-query :sort 'visibility)))))))
 
 (defvar consult-project--source-file
   `(
     :name      "Project file"
     :narrow    ?f
-    :category  project-file
+    :category  file
     :face      consult-file
     :history   file-name-history
-    :action    ,(lambda (f) (consult--file-action (concat (project-root (project-current)) f)))
+    :action    consult--file-action
     :enabled   ,(lambda () (project-current))
     :items
     ,(lambda ()
-       (let ((root-dir (expand-file-name (project-root (project-current)))))
-         (mapcar
-          (lambda (f) (string-remove-prefix root-dir f))
-          (project-files (project-current)))))))
+       (let* ((pr       (project-current))
+              (root-dir (project-root pr))
+              (files    (project-files pr)))
+         (consult-project--list-files root-dir files)))))
 
 (defvar consult-project--source-project-recentf
   `(
