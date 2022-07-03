@@ -2,15 +2,15 @@
 
 [Consult](https://github.com/minad/consult) integration for project.
 
-## Usage
+## Config example
 
-### Install with [use-package](https://github.com/jwiegley/use-package)/[straight.el](https://github.com/raxod502/straight.el):
+### Install with [use-package](https://github.com/jwiegley/use-package) and [quelpa](https://github.com/quelpa/quelpa):
 
 ```elisp
 (use-package consult-project
-  :straight (consult-project :type git :host github :repo "cxa/consult-project")
+  :quelpa (consult-project :fetcher github :repo "cxa/consult-project")
   :custom (consult-project-recentf-max-projects 5)
-  :bind ("M-p" . consult-project))
+  :bind ("C-x C-p" . consult-project))
 ```
 
 ### or clone to your `load-path`.
