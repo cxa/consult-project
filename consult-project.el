@@ -57,7 +57,7 @@
   :group 'consult-project)
 
 (defcustom consult-project-recentf-max-projects 5
-  "Max recentf projects"
+  "Max recentf projects."
   :type 'integer
   :group 'consult-project)
 
@@ -84,7 +84,7 @@
               :history 'file-name-history)))
 
 (defun consult-project--recentf-projects ()
-  "Return list of recentf projects"
+  "Return list of recentf projects."
   (let* ((get-proj (-compose #'project--find-in-directory #'file-name-directory))
          (projs (remq nil (mapcar get-proj recentf-list)))
          (dirs (delete-dups (mapcar (-compose #'abbreviate-file-name  #'project-root) projs))))
