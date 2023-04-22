@@ -56,7 +56,7 @@
   :type '(repeat symbol)
   :group 'consult-project)
 
-(defcustom consult-project-recentf-max-projects 5
+(defcustom consult-project-recentf-max-projects 10
   "Max recentf projects."
   :type 'integer
   :group 'consult-project)
@@ -64,24 +64,32 @@
 (defvar consult-project--history nil)
 
 (defun consult-project--list-files (root &optional files)
+  "List files for project ROOT, or FILES if provided."
+  ;; `preject' expands file names, so we must expand `root' to match up
+  (setq root (expand-file-name root))
   (unless files
     (setq files (project-files (project--find-in-directory root))))
-  (setq root (expand-file-name root))
-  (let ((invisible-root (propertize root 'invisible t)))
-    (mapcar
-     (lambda (f) (concat invisible-root (string-remove-prefix root f)))
-     files)))
+  (mapcar
+   (lambda (f) (propertize
+                (string-remove-prefix root f)
+                'consult--project-root root))
+   files))
 
-(defun consult-project--file (selected-dir)
+(defun consult-project--file-action (root file)
+  "Open FILE under ROOT."
+    (consult--file-action (concat root file)))
+
+(defun consult-project--files (selected-dir)
   "Create a view for project in SELECTED-DIR."
-  (find-file (consult--read
-              (consult-project--list-files selected-dir)
-              :prompt "Find project file: "
-              :sort t
-              :require-match t
-              :category 'file
-              :state (consult--file-preview)
-              :history 'file-name-history)))
+  (consult-project--file-action
+   selected-dir
+   (consult--read (consult-project--list-files selected-dir)
+                  :prompt "Find project file: "
+                  :sort t
+                  :require-match t
+                  :category 'file
+                  :state (consult--file-preview)
+                  :history 'file-name-history)))
 
 (defun consult-project--recentf-projects ()
   "Return list of recentf projects."
@@ -116,13 +124,15 @@
     :category  file
     :face      consult-file
     :history   file-name-history
-    :action    consult--file-action
+    :action    ,(lambda (f)
+                  (consult-project--file-action
+                   (project-root (project-current)) f))
     :enabled   ,(lambda () (project-current))
     :items
     ,(lambda ()
-       (let* ((pr       (project-current))
-              (root-dir (project-root pr))
-              (files    (project-files pr)))
+       (let* ((proj     (project-current))
+              (root-dir (project-root proj))
+              (files    (project-files proj)))
          (consult-project--list-files root-dir files)))))
 
 (defvar consult-project--source-project-recentf
@@ -133,7 +143,7 @@
     :face     consult-file
     :history  file-name-history
     :enabled  ,(lambda () recentf-mode)
-    :action   ,#'consult-project--file
+    :action   ,#'consult-project--files
     :items    ,#'consult-project--recentf-projects))
 
 (defvar consult-project--source-project-all
@@ -144,7 +154,7 @@
     :face     consult-file
     :history  file-name-history
     :enabled  ,(lambda() t)
-    :action   ,#'consult-project--file
+    :action   ,#'consult-project--files
     :items    ,#'project-known-project-roots))
 
 ;;;###autoload
@@ -152,7 +162,7 @@
   "A consult multi view with project integration."
   (interactive)
   (when-let (buffer (consult--multi consult-project-sources
-                                    :prompt "Switch: "
+                                    :prompt "Switch to: "
                                     :require-match t
                                     :history consult-project--history
                                     :sort nil))
