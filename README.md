@@ -1,6 +1,6 @@
 # consult-project
 
-[Consult](https://github.com/minad/consult) integration for project.
+[Consult](https://github.com/minad/consult) integration for Emacs builtin [project](https://elpa.gnu.org/packages/project.html) manager.
 
 ## Config example
 
@@ -9,8 +9,7 @@
 ```elisp
 (use-package consult-project
   :quelpa (consult-project :fetcher github :repo "cxa/consult-project")
-  :custom (consult-project-recentf-max-projects 5)
   :bind ("C-x C-p" . consult-project))
 ```
 
-### or clone to your `load-path`.
+### or clone to your `load-path` and manually `require` to load.
