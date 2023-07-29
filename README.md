@@ -1,3 +1,6 @@
+> [!WARNING]  
+> Use `consult-project-buffer` instead.
+
 # consult-project
 
 [Consult](https://github.com/minad/consult) integration for Emacs builtin [project](https://elpa.gnu.org/packages/project.html) manager.
